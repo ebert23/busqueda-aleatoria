@@ -2,6 +2,7 @@ services:
   - type: web
     name: sistema-servicios-automotrices
     env: python
+    runtime: python-3.11
     buildCommand: "pip install -r requirements.txt"
     startCommand: "python init_db.py && gunicorn app:app"
     envVars:
