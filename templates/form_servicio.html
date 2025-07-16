@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if servicio else 'Nuevo' }} Servicio{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>{{ 'Editar' if servicio else 'Nuevo' }} Servicio</h2>
+        <form method="POST" class="needs-validation" novalidate>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="placa">Placa*</label>
+                    <input type="text" class="form-control" id="placa" name="placa" value="{{ servicio.placa if servicio else '' }}" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="fecha">Fecha*</label>
+                    <input type="date" class="form-control" id="fecha" name="fecha" value="{{ servicio.fecha.strftime('%Y-%m-%d') if servicio and servicio.fecha else '' }}" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="cliente">Cliente</label>
+                    <input type="text" class="form-control" id="cliente" name="cliente" value="{{ servicio.cliente if servicio else '' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="marca">Marca</label>
+                    <input type="text" class="form-control" id="marca" name="marca" value="{{ servicio.marca if servicio else '' }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="modelo">Modelo</label>
+                    <input type="text" class="form-control" id="modelo" name="modelo" value="{{ servicio.modelo if servicio else '' }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="kilometraje">Kilometraje</label>
+                    <input type="number" step="0.01" class="form-control" id="kilometraje" name="kilometraje" value="{{ servicio.kilometraje if servicio else '' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="filtro_aceite">Filtro de Aceite</label>
+                    <input type="text" class="form-control" id="filtro_aceite" name="filtro_aceite" value="{{ servicio.filtro_aceite if servicio else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="precio_filtro_aceite">Precio Filtro de Aceite</label>
+                    <input type="number" step="0.01" class="form-control" id="precio_filtro_aceite" name="precio_filtro_aceite" value="{{ servicio.precio_filtro_aceite if servicio else '' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="filtro_aire">Filtro de Aire</label>
+                    <input type="text" class="form-control" id="filtro_aire" name="filtro_aire" value="{{ servicio.filtro_aire if servicio else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="precio_filtro_aire">Precio Filtro de Aire</label>
+                    <input type="number" step="0.01" class="form-control" id="precio_filtro_aire" name="precio_filtro_aire" value="{{ servicio.precio_filtro_aire if servicio else '' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="filtro_petroleo">Filtro de Petróleo</label>
+                    <input type="text" class="form-control" id="filtro_petroleo" name="filtro_petroleo" value="{{ servicio.filtro_petroleo if servicio else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="precio_filtro_petroleo">Precio Filtro de Petróleo</label>
+                    <input type="number" step="0.01" class="form-control" id="precio_filtro_petroleo" name="precio_filtro_petroleo" value="{{ servicio.precio_filtro_petroleo if servicio else '' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="aceite_motor">Aceite Motor</label>
+                    <input type="text" class="form-control" id="aceite_motor" name="aceite_motor" value="{{ servicio.aceite_motor if servicio else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="precio_aceite_motor">Precio Aceite Motor</label>
+                    <input type="number" step="0.01" class="form-control" id="precio_aceite_motor" name="precio_aceite_motor" value="{{ servicio.precio_aceite_motor if servicio else '' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="otros_1">Otros 1</label>
+                    <input type="text" class="form-control" id="otros_1" name="otros_1" value="{{ servicio.otros_1 if servicio else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="precio_otros_1">Precio Otros 1</label>
+                    <input type="number" step="0.01" class="form-control" id="precio_otros_1" name="precio_otros_1" value="{{ servicio.precio_otros_1 if servicio else '' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="otros_2">Otros 2</label>
+                    <input type="text" class="form-control" id="otros_2" name="otros_2" value="{{ servicio.otros_2 if servicio else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="precio_otros_2">Precio Otros 2</label>
+                    <input type="number" step="0.01" class="form-control" id="precio_otros_2" name="precio_otros_2" value="{{ servicio.precio_otros_2 if servicio else '' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="otros_3">Otros 3</label>
+                    <input type="text" class="form-control" id="otros_3" name="otros_3" value="{{ servicio.otros_3 if servicio else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="precio_otros_3">Precio Otros 3</label>
+                    <input type="number" step="0.01" class="form-control" id="precio_otros_3" name="precio_otros_3" value="{{ servicio.precio_otros_3 if servicio else '' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="otros_4">Otros 4</label>
+                    <input type="text" class="form-control" id="otros_4" name="otros_4" value="{{ servicio.otros_4 if servicio else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="precio_otros_4">Precio Otros 4</label>
+                    <input type="number" step="0.01" class="form-control" id="precio_otros_4" name="precio_otros_4" value="{{ servicio.precio_otros_4 if servicio else '' }}">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
+{% endblock %}

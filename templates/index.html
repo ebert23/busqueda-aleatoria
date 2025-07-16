@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2>Servicios Registrados</h2>
+    </div>
+    <div class="col-md-6">
+        <form action="{{ url_for('buscar') }}" method="get" class="form-inline justify-content-end">
+            <div class="input-group">
+                <input type="text" name="placa" class="form-control" placeholder="Buscar por placa..." value="{{ placa or '' }}">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary">Buscar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Placa</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Kilometraje</th>
+                <th>Filtro Aceite</th>
+                <th>Precio F.A.</th>
+                <th>Filtro Aire</th>
+                <th>Precio F.Ai.</th>
+                <th>Filtro Petróleo</th>
+                <th>Precio F.P.</th>
+                <th>Aceite Motor</th>
+                <th>Precio A.M.</th>
+                <th>Otros 1</th>
+                <th>Precio O1</th>
+                <th>Otros 2</th>
+                <th>Precio O2</th>
+                <th>Otros 3</th>
+                <th>Precio O3</th>
+                <th>Otros 4</th>
+                <th>Precio O4</th>
+                <th>Total</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for servicio in servicios %}
+            <tr>
+                <td>{{ servicio.placa }}</td>
+                <td>{{ servicio.fecha.strftime('%d/%m/%Y') }}</td>
+                <td>{{ servicio.cliente or '' }}</td>
+                <td>{{ servicio.marca or '' }}</td>
+                <td>{{ servicio.modelo or '' }}</td>
+                <td>{{ servicio.kilometraje or '' }}</td>
+                <td>{{ servicio.filtro_aceite or '' }}</td>
+                <td>S/. {{ "%.2f"|format(servicio.precio_filtro_aceite or 0) }}</td>
+                <td>{{ servicio.filtro_aire or '' }}</td>
+                <td>S/. {{ "%.2f"|format(servicio.precio_filtro_aire or 0) }}</td>
+                <td>{{ servicio.filtro_petroleo or '' }}</td>
+                <td>S/. {{ "%.2f"|format(servicio.precio_filtro_petroleo or 0) }}</td>
+                <td>{{ servicio.aceite_motor or '' }}</td>
+                <td>S/. {{ "%.2f"|format(servicio.precio_aceite_motor or 0) }}</td>
+                <td class="tooltip-cell" data-tooltip="{{ servicio.otros_1 or '' }}">{{ servicio.otros_1 or '' }}</td>
+                <td>S/. {{ "%.2f"|format(servicio.precio_otros_1 or 0) }}</td>
+                <td class="tooltip-cell" data-tooltip="{{ servicio.otros_2 or '' }}">{{ servicio.otros_2 or '' }}</td>
+                <td>S/. {{ "%.2f"|format(servicio.precio_otros_2 or 0) }}</td>
+                <td class="tooltip-cell" data-tooltip="{{ servicio.otros_3 or '' }}">{{ servicio.otros_3 or '' }}</td>
+                <td>S/. {{ "%.2f"|format(servicio.precio_otros_3 or 0) }}</td>
+                <td class="tooltip-cell" data-tooltip="{{ servicio.otros_4 or '' }}">{{ servicio.otros_4 or '' }}</td>
+                <td>S/. {{ "%.2f"|format(servicio.precio_otros_4 or 0) }}</td>
+                <td>S/. {{ "%.2f"|format(servicio.total or 0) }}</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('editar_servicio', id=servicio.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{{ url_for('eliminar_servicio', id=servicio.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro de eliminar este servicio?')">Eliminar</a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="24" class="text-center">No hay servicios registrados</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pagination and pagination.pages > 1 %}
+<nav aria-label="Navegación de páginas">
+    <ul class="pagination justify-content-center">
+        {% if pagination.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for(request.endpoint, page=pagination.prev_num, placa=placa or '') }}">&laquo; Anterior</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">&laquo; Anterior</span>
+        </li>
+        {% endif %}
+
+        {% for page in pagination.iter_pages() %}
+            {% if page %}
+                {% if page != pagination.page %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for(request.endpoint, page=page, placa=placa or '') }}">{{ page }}</a>
+                </li>
+                {% else %}
+                <li class="page-item active">
+                    <span class="page-link">{{ page }}</span>
+                </li>
+                {% endif %}
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if pagination.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for(request.endpoint, page=pagination.next_num, placa=placa or '') }}">Siguiente &raquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Siguiente &raquo;</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Importar Excel{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Importar Datos desde Excel</h2>
+        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+            <div class="form-group">
+                <label for="file">Seleccionar archivo Excel</label>
+                <input type="file" class="form-control-file" id="file" name="file" accept=".xlsx,.xls" required>
+                <small class="form-text text-muted">El archivo debe tener el mismo formato que el Excel actual.</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Importar</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
+{% endblock %}

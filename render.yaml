@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: sistema-servicios-automotrices
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python init_db.py && gunicorn app:app"
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://cambiosdb_user:xJtg2cPzhBoMjQwABhv6j67TdQGqC21Q@dpg-d1pv1uvfte5s73cpnvf0-a.oregon-postgres.render.com/cambiosdb
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_ENV
+        value: production

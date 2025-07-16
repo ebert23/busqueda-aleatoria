@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+
+{% block title %}Administración de Usuarios{% endblock %}
+
+{% block content %}
+<!-- Gestión de Datos -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0">
+            <i class="fas fa-database me-2"></i>Gestión de Datos
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>¡Atención!</strong> Las siguientes acciones son irreversibles y solo están disponibles para administradores.
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card border-danger">
+                    <div class="card-body text-center">
+                        <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+                        <h5 class="card-title">Borrar Todos los Registros</h5>
+                        <p class="card-text text-muted">Elimina permanentemente todos los servicios registrados en el sistema.</p>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalBorrarTodos">
+                            <i class="fas fa-trash-alt me-2"></i>Borrar Todos los Registros
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gestión de Usuarios -->
+<div class="card shadow">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">
+            <i class="fas fa-users me-2"></i>Usuarios del Sistema
+        </h4>
+        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalUsuario">
+            <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.username }}</td>
+                        <td>{{ usuario.nombre }}</td>
+                        <td>
+                            {% if usuario.es_admin %}
+                            <span class="badge bg-primary">Administrador</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Usuario</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.id != current_user.id %}
+                            <form action="{{ url_for('eliminar_usuario', id=usuario.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Está seguro de eliminar este usuario?')">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nuevo Usuario -->
+<div class="modal fade" id="modalUsuario" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('crear_usuario') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user me-2"></i>Usuario
+                        </label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-2"></i>Contraseña
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">
+                            <i class="fas fa-id-card me-2"></i>Nombre Completo
+                        </label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="es_admin" name="es_admin">
+                        <label class="form-check-label" for="es_admin">
+                            <i class="fas fa-user-shield me-2"></i>Es Administrador
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Borrar Todos los Registros -->
+<div class="modal fade" id="modalBorrarTodos" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>¡ADVERTENCIA!</strong> Esta acción es irreversible.
+                </div>
+                <p class="mb-3">Está a punto de eliminar <strong>TODOS</strong> los registros de servicios del sistema.</p>
+                <p class="mb-3">Esta acción:</p>
+                <ul>
+                    <li>Eliminará permanentemente todos los servicios registrados</li>
+                    <li>No se puede deshacer</li>
+                    <li>Afectará a todos los usuarios del sistema</li>
+                </ul>
+                <p class="text-danger"><strong>¿Está completamente seguro de que desea continuar?</strong></p>
+                
+                <div class="mb-3">
+                    <label for="confirmText" class="form-label">Para confirmar, escriba <strong>BORRAR TODO</strong>:</label>
+                    <input type="text" class="form-control" id="confirmText" placeholder="Escriba: BORRAR TODO">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <form action="{{ url_for('borrar_todos_registros') }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger" id="btnConfirmarBorrar" disabled>
+                        <i class="fas fa-trash-alt me-2"></i>Sí, Borrar Todo
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Script para habilitar el botón solo cuando se escriba el texto correcto
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmText = document.getElementById('confirmText');
+    const btnConfirmar = document.getElementById('btnConfirmarBorrar');
+    
+    confirmText.addEventListener('input', function() {
+        if (this.value === 'BORRAR TODO') {
+            btnConfirmar.disabled = false;
+            btnConfirmar.classList.remove('btn-secondary');
+            btnConfirmar.classList.add('btn-danger');
+        } else {
+            btnConfirmar.disabled = true;
+            btnConfirmar.classList.remove('btn-danger');
+            btnConfirmar.classList.add('btn-secondary');
+        }
+    });
+    
+    // Limpiar el campo cuando se cierre el modal
+    document.getElementById('modalBorrarTodos').addEventListener('hidden.bs.modal', function() {
+        confirmText.value = '';
+        btnConfirmar.disabled = true;
+        btnConfirmar.classList.remove('btn-danger');
+        btnConfirmar.classList.add('btn-secondary');
+    });
+});
+</script>
+
+{% endblock %}

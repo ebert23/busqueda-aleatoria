@@ -1,0 +1,156 @@
+/* Estilos personalizados */
+
+/* Ajustes generales */
+body {
+    background-color: #f8f9fa;
+}
+
+/* Estilos para la tabla */
+.table {
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.table thead th {
+    background-color: #343a40;
+    color: white;
+    border-color: #454d55;
+}
+
+/* Estilos para los formularios */
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Estilos para los botones */
+.btn-group .btn {
+    margin-right: 5px;
+}
+
+.btn-group .btn:last-child {
+    margin-right: 0;
+}
+
+/* Estilos para las alertas */
+.alert {
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+/* Estilos para el navbar */
+.navbar {
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Estilos para los campos requeridos */
+.form-control:required {
+    border-left: 4px solid #007bff;
+}
+
+/* Estilos para validación de formularios */
+.was-validated .form-control:valid {
+    border-color: #28a745;
+    padding-right: calc(1.5em + .75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(.375em + .1875rem) center;
+    background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+}
+
+.was-validated .form-control:invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + .75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(.375em + .1875rem) center;
+    background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+}
+
+.table-responsive {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.table th, .table td {
+    white-space: nowrap;
+    padding: 8px;
+    font-size: 14px;
+}
+
+.table th {
+    background-color: #343a40;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.table-striped tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.btn-group .btn {
+    padding: 2px 8px;
+    font-size: 12px;
+}
+
+.table td[colspan="24"] {
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    color: #666;
+}
+
+/* Estilos para las columnas de precios */
+.table td:nth-child(8),
+.table td:nth-child(10),
+.table td:nth-child(12),
+.table td:nth-child(14),
+.table td:nth-child(16),
+.table td:nth-child(18),
+.table td:nth-child(20),
+.table td:nth-child(22),
+.table td:nth-child(23) {
+    text-align: right;
+    font-family: monospace;
+    background-color: #f8f9fa;
+}
+
+/* Hacer que el encabezado se mantenga visible al desplazarse */
+.table-responsive {
+    max-height: 70vh;
+}
+
+/* Ajuste de ancho para columnas específicas */
+.table th:nth-child(3), /* Cliente */
+.table td:nth-child(3) {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.table th:nth-child(15), /* Otros 1 */
+.table td:nth-child(15),
+.table th:nth-child(17), /* Otros 2 */
+.table td:nth-child(17),
+.table th:nth-child(19), /* Otros 3 */
+.table td:nth-child(19),
+.table th:nth-child(21), /* Otros 4 */
+.table td:nth-child(21) {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+}
+
+/* Estilos para tooltip */
+.tooltip-cell {
+    position: relative;
+    cursor: help;
+}
