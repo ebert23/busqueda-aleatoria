@@ -13,7 +13,7 @@ Este sistema permite gestionar registros de servicios automotrices, incluyendo l
 
 ## Requisitos
 
-- Python 3.11+ (recomendado para compatibilidad con todas las dependencias)
+- Python 3.12 (recomendado para compatibilidad óptima con todas las dependencias)
 - Flask y dependencias (ver requirements.txt)
 - Pip (gestor de paquetes de Python)
 
