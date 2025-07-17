@@ -39,27 +39,27 @@ class Usuario(UserMixin, db.Model):
 
 class Servicio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    placa = db.Column(db.String(20), nullable=False)
+    placa = db.Column(db.String(50), nullable=False)
     fecha = db.Column(db.Date, nullable=False)
-    cliente = db.Column(db.String(100))
-    marca = db.Column(db.String(50))
-    modelo = db.Column(db.String(50))
+    cliente = db.Column(db.String(200))
+    marca = db.Column(db.String(100))
+    modelo = db.Column(db.String(100))
     kilometraje = db.Column(db.Float)
-    filtro_aceite = db.Column(db.String(20))
+    filtro_aceite = db.Column(db.String(200))
     precio_filtro_aceite = db.Column(db.Float)
-    filtro_aire = db.Column(db.String(20))
+    filtro_aire = db.Column(db.String(200))
     precio_filtro_aire = db.Column(db.Float)
-    filtro_petroleo = db.Column(db.String(20))
+    filtro_petroleo = db.Column(db.String(200))
     precio_filtro_petroleo = db.Column(db.Float)
-    aceite_motor = db.Column(db.String(50))
+    aceite_motor = db.Column(db.String(200))
     precio_aceite_motor = db.Column(db.Float)
-    otros_1 = db.Column(db.String(100))
+    otros_1 = db.Column(db.String(200))
     precio_otros_1 = db.Column(db.Float)
-    otros_2 = db.Column(db.String(100))
+    otros_2 = db.Column(db.String(200))
     precio_otros_2 = db.Column(db.Float)
-    otros_3 = db.Column(db.String(100))
+    otros_3 = db.Column(db.String(200))
     precio_otros_3 = db.Column(db.Float)
-    otros_4 = db.Column(db.String(100))
+    otros_4 = db.Column(db.String(200))
     precio_otros_4 = db.Column(db.Float)
     total = db.Column(db.Float)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
@@ -262,61 +262,94 @@ def importar_excel():
                 if columna not in df.columns:
                     raise ValueError(f'La columna {columna} no existe en el archivo Excel')
 
-            for _, row in df.iterrows():
+            # Preparar todos los datos para bulk insert
+            servicios_data = []
+            errors = []
+            
+            for idx, row in df.iterrows():
                 try:
                     # Manejo específico de la fecha
                     fecha_raw = row['FECHA']
                     if pd.isna(fecha_raw):
-                        raise ValueError('La fecha no puede estar vacía')
+                        errors.append(f'Fila {idx + 2}: La fecha no puede estar vacía')
+                        continue
                     
                     try:
                         fecha = pd.to_datetime(fecha_raw).date()
                     except Exception as fecha_error:
-                        raise ValueError(f'Error al procesar la fecha "{fecha_raw}": {str(fecha_error)}')
-
-                    servicio = Servicio(
-                        placa=str(row['PLACA']) if pd.notna(row['PLACA']) else None,
-                        fecha=fecha,
-                        cliente=str(row['CLIENTE']) if pd.notna(row.get('CLIENTE')) else None,
-                        marca=str(row['MARCA']) if pd.notna(row.get('MARCA')) else None,
-                        modelo=str(row['MODELO']) if pd.notna(row.get('MODELO')) else None,
-                        kilometraje=safe_float_conversion(row.get('KM')),
-                        filtro_aceite=str(row['FILTRO DE ACEITE']) if pd.notna(row.get('FILTRO DE ACEITE')) else None,
-                        precio_filtro_aceite=safe_float_conversion(row.get('PRECIO FILTRO ACEITE')),
-                        filtro_aire=str(row['FILTRO DE AIRE']) if pd.notna(row.get('FILTRO DE AIRE')) else None,
-                        precio_filtro_aire=safe_float_conversion(row.get('PRECIO FILTRO AIRE')),
-                        filtro_petroleo=str(row['FILTRO DE PETROLEO']) if pd.notna(row.get('FILTRO DE PETROLEO')) else None,
-                        precio_filtro_petroleo=safe_float_conversion(row.get('PRECIO FILTRO PETROLEO')),
-                        aceite_motor=str(row['ACEITE DE MOTOR']) if pd.notna(row.get('ACEITE DE MOTOR')) else None,
-                        precio_aceite_motor=safe_float_conversion(row.get('PRECIO ACEITE MOTOR')),
-                        otros_1=str(row['OTROS 1']) if pd.notna(row.get('OTROS 1')) else None,
-                        precio_otros_1=safe_float_conversion(row.get('PRECIO OTROS 1')),
-                        otros_2=str(row['OTROS 2']) if pd.notna(row.get('OTROS 2')) else None,
-                        precio_otros_2=safe_float_conversion(row.get('PRECIO OTROS 2')),
-                        otros_3=str(row['OTROS 3']) if pd.notna(row.get('OTROS 3')) else None,
-                        precio_otros_3=safe_float_conversion(row.get('PRECIO OTROS 3')),
-                        otros_4=str(row['OTROS 4']) if pd.notna(row.get('OTROS 4')) else None,
-                        precio_otros_4=safe_float_conversion(row.get('PRECIO OTROS 4')),
-                        usuario_id=current_user.id
-                    )
+                        errors.append(f'Fila {idx + 2}: Error al procesar la fecha "{fecha_raw}": {str(fecha_error)}')
+                        continue
 
                     # Calcular el total
-                    total = 0
-                    for attr in ['precio_filtro_aceite', 'precio_filtro_aire', 'precio_filtro_petroleo',
-                                'precio_aceite_motor', 'precio_otros_1', 'precio_otros_2',
-                                'precio_otros_3', 'precio_otros_4']:
-                        valor = getattr(servicio, attr)
-                        if valor is not None:
-                            total += valor
-                    servicio.total = total
+                    precio_filtro_aceite = safe_float_conversion(row.get('PRECIO FILTRO ACEITE'))
+                    precio_filtro_aire = safe_float_conversion(row.get('PRECIO FILTRO AIRE'))
+                    precio_filtro_petroleo = safe_float_conversion(row.get('PRECIO FILTRO PETROLEO'))
+                    precio_aceite_motor = safe_float_conversion(row.get('PRECIO ACEITE MOTOR'))
+                    precio_otros_1 = safe_float_conversion(row.get('PRECIO OTROS 1'))
+                    precio_otros_2 = safe_float_conversion(row.get('PRECIO OTROS 2'))
+                    precio_otros_3 = safe_float_conversion(row.get('PRECIO OTROS 3'))
+                    precio_otros_4 = safe_float_conversion(row.get('PRECIO OTROS 4'))
                     
-                    db.session.add(servicio)
+                    total = sum(filter(None, [precio_filtro_aceite, precio_filtro_aire, precio_filtro_petroleo,
+                                            precio_aceite_motor, precio_otros_1, precio_otros_2,
+                                            precio_otros_3, precio_otros_4]))
+
+                    servicio_data = {
+                        'placa': str(row['PLACA']) if pd.notna(row['PLACA']) else None,
+                        'fecha': fecha,
+                        'cliente': str(row['CLIENTE']) if pd.notna(row.get('CLIENTE')) else None,
+                        'marca': str(row['MARCA']) if pd.notna(row.get('MARCA')) else None,
+                        'modelo': str(row['MODELO']) if pd.notna(row.get('MODELO')) else None,
+                        'kilometraje': safe_float_conversion(row.get('KM')),
+                        'filtro_aceite': str(row['FILTRO DE ACEITE']) if pd.notna(row.get('FILTRO DE ACEITE')) else None,
+                        'precio_filtro_aceite': precio_filtro_aceite,
+                        'filtro_aire': str(row['FILTRO DE AIRE']) if pd.notna(row.get('FILTRO DE AIRE')) else None,
+                        'precio_filtro_aire': precio_filtro_aire,
+                        'filtro_petroleo': str(row['FILTRO DE PETROLEO']) if pd.notna(row.get('FILTRO DE PETROLEO')) else None,
+                        'precio_filtro_petroleo': precio_filtro_petroleo,
+                        'aceite_motor': str(row['ACEITE DE MOTOR']) if pd.notna(row.get('ACEITE DE MOTOR')) else None,
+                        'precio_aceite_motor': precio_aceite_motor,
+                        'otros_1': str(row['OTROS 1']) if pd.notna(row.get('OTROS 1')) else None,
+                        'precio_otros_1': precio_otros_1,
+                        'otros_2': str(row['OTROS 2']) if pd.notna(row.get('OTROS 2')) else None,
+                        'precio_otros_2': precio_otros_2,
+                        'otros_3': str(row['OTROS 3']) if pd.notna(row.get('OTROS 3')) else None,
+                        'precio_otros_3': precio_otros_3,
+                        'otros_4': str(row['OTROS 4']) if pd.notna(row.get('OTROS 4')) else None,
+                        'precio_otros_4': precio_otros_4,
+                        'total': total,
+                        'usuario_id': current_user.id
+                    }
+                    
+                    servicios_data.append(servicio_data)
+                    
                 except Exception as row_error:
-                    db.session.rollback()
-                    raise ValueError(f'Error en la fila {_ + 2}: {str(row_error)}')
+                    errors.append(f'Fila {idx + 2}: {str(row_error)}')
+                    continue
             
-            db.session.commit()
-            flash('Datos importados exitosamente', 'success')
+            # Bulk insert - insertar todos los datos de una vez
+            if servicios_data:
+                try:
+                    db.session.execute(Servicio.__table__.insert(), servicios_data)
+                    db.session.commit()
+                    processed_rows = len(servicios_data)
+                    
+                    # Mostrar resumen
+                    if errors:
+                        error_summary = f'Se procesaron {processed_rows} registros exitosamente. Errores encontrados: {len(errors)}'
+                        if len(errors) <= 5:
+                            error_summary += f' - {" | ".join(errors[:5])}'
+                        else:
+                            error_summary += f' - Primeros 5 errores: {" | ".join(errors[:5])}'
+                        flash(error_summary, 'warning')
+                    else:
+                        flash(f'Datos importados exitosamente: {processed_rows} registros', 'success')
+                        
+                except Exception as bulk_error:
+                    db.session.rollback()
+                    raise ValueError(f'Error en la inserción masiva: {str(bulk_error)}')
+            else:
+                flash('No se pudieron procesar registros válidos', 'danger')
         except Exception as e:
             db.session.rollback()
             flash(f'Error al importar datos: {str(e)}', 'danger')
