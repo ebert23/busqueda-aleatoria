@@ -1,0 +1,687 @@
+{% extends "clinica/base.html" %}
+
+{% block title %}Estudios Clínicos - Sistema Clínica{% endblock %}
+
+{% block page_name %}estudios{% endblock %}
+
+{% block extra_css %}
+<style>
+    .study-form {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+    
+    .study-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+    
+    .study-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .study-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .study-title {
+        color: var(--primary-color);
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .study-meta {
+        color: #6c757d;
+        font-size: 0.9rem;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .study-status {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-pendiente {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+    }
+    
+    .status-en-proceso {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+    
+    .status-completado {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .status-cancelado {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .study-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .patient-selector {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .selected-patient {
+        background: linear-gradient(135deg, var(--success-color), #20c997);
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        background: #f8f9fa;
+    }
+    
+    .section-title {
+        color: var(--primary-color);
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 10px;
+    }
+    
+    .section-title i {
+        margin-right: 10px;
+        font-size: 1.5rem;
+    }
+    
+    .results-section {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-top: 20px;
+    }
+    
+    .result-item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid var(--info-color);
+    }
+    
+    .result-name {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 5px;
+    }
+    
+    .result-value {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .result-reference {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    
+    .filter-section {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+    
+    .quick-filters {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+    
+    .filter-btn {
+        padding: 8px 16px;
+        border: 2px solid var(--primary-color);
+        background: white;
+        color: var(--primary-color);
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .filter-btn.active,
+    .filter-btn:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .study-progress {
+        margin-top: 15px;
+    }
+    
+    .progress {
+        height: 8px;
+        border-radius: 4px;
+    }
+    
+    .progress-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2">
+            <i class="fas fa-flask me-3"></i>
+            Estudios Clínicos
+        </h1>
+        <div>
+            <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#areasModal">
+                <i class="fas fa-cogs me-2"></i>Gestionar Áreas
+            </button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newStudyModal">
+                <i class="fas fa-plus-circle me-2"></i>Nuevo Estudio
+            </button>
+        </div>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="filter-section">
+        <h4 class="section-title">
+            <i class="fas fa-filter"></i>
+            Filtros de Búsqueda
+        </h4>
+        
+        <div class="quick-filters">
+            <button class="filter-btn active" data-filter="todos">Todos</button>
+            <button class="filter-btn" data-filter="pendiente">Pendientes</button>
+            <button class="filter-btn" data-filter="en-proceso">En Proceso</button>
+            <button class="filter-btn" data-filter="completado">Completados</button>
+            <button class="filter-btn" data-filter="hoy">Hoy</button>
+            <button class="filter-btn" data-filter="semana">Esta Semana</button>
+        </div>
+        
+        <form method="GET" class="row">
+            <div class="col-md-3 mb-3">
+                <label for="search_paciente" class="form-label">Paciente</label>
+                <input type="text" class="form-control" id="search_paciente" name="paciente" placeholder="Buscar por nombre o documento">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="search_area" class="form-label">Área de Estudio</label>
+                <select class="form-select" id="search_area" name="area">
+                    <option value="">Todas las áreas</option>
+                    {% for area in areas_estudio %}
+                    <option value="{{ area.id }}">{{ area.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="search_fecha" class="form-label">Fecha</label>
+                <input type="date" class="form-control" id="search_fecha" name="fecha">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="search_estado" class="form-label">Estado</label>
+                <select class="form-select" id="search_estado" name="estado">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="en_proceso">En Proceso</option>
+                    <option value="completado">Completado</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Lista de Estudios -->
+    <div class="row">
+        <div class="col-12">
+            {% if estudios %}
+                {% for estudio in estudios %}
+                <div class="study-card" data-status="{{ estudio.estado }}" data-date="{{ estudio.fecha_creacion.strftime('%Y-%m-%d') }}">
+                    <div class="study-header">
+                        <div class="flex-grow-1">
+                            <div class="study-title">{{ estudio.tipo_estudio.nombre }}</div>
+                            <div class="study-meta">
+                                <span><i class="fas fa-user me-1"></i>{{ estudio.paciente.nombres }} {{ estudio.paciente.apellidos }}</span>
+                                <span><i class="fas fa-id-card me-1"></i>{{ estudio.paciente.documento_identidad }}</span>
+                                <span><i class="fas fa-calendar me-1"></i>{{ estudio.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}</span>
+                                <span><i class="fas fa-tag me-1"></i>{{ estudio.area_estudio.nombre }}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="study-status status-{{ estudio.estado.replace('_', '-') }}">{{ estudio.estado.replace('_', ' ').title() }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if estudio.observaciones %}
+                    <div class="mb-3">
+                        <strong>Observaciones:</strong> {{ estudio.observaciones }}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Progreso del estudio -->
+                    <div class="study-progress">
+                        <div class="progress-label">Progreso del estudio</div>
+                        <div class="progress">
+                            {% set progress = 25 if estudio.estado == 'pendiente' else (50 if estudio.estado == 'en_proceso' else (100 if estudio.estado == 'completado' else 0)) %}
+                            <div class="progress-bar" style="width: {{ progress }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="study-actions">
+                        <a href="{{ url_for('ver_estudio', id=estudio.id) }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye me-1"></i>Ver Detalles
+                        </a>
+                        {% if estudio.estado != 'completado' %}
+                        <a href="{{ url_for('editar_estudio', id=estudio.id) }}" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-edit me-1"></i>Editar
+                        </a>
+                        {% endif %}
+                        {% if estudio.estado == 'pendiente' %}
+                        <button class="btn btn-outline-success btn-sm" onclick="cambiarEstado({{ estudio.id }}, 'en_proceso')">
+                            <i class="fas fa-play me-1"></i>Iniciar
+                        </button>
+                        {% elif estudio.estado == 'en_proceso' %}
+                        <a href="{{ url_for('registrar_resultados', id=estudio.id) }}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-clipboard-list me-1"></i>Registrar Resultados
+                        </a>
+                        <button class="btn btn-outline-success btn-sm" onclick="cambiarEstado({{ estudio.id }}, 'completado')">
+                            <i class="fas fa-check me-1"></i>Completar
+                        </button>
+                        {% endif %}
+                        {% if estudio.estado == 'completado' %}
+                        <a href="{{ url_for('generar_reporte_estudio', id=estudio.id) }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-file-pdf me-1"></i>Generar Reporte
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-flask text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="text-muted mt-3">No hay estudios clínicos registrados</h4>
+                    <p class="text-muted">Comience creando su primer estudio clínico</p>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newStudyModal">
+                        <i class="fas fa-plus-circle me-2"></i>Crear Primer Estudio
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nuevo Estudio -->
+<div class="modal fade" id="newStudyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle me-2"></i>Nuevo Estudio Clínico
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newStudyForm" method="POST" action="{{ url_for('nuevo_estudio') }}">
+                    <!-- Selección de Paciente -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="fas fa-user"></i>
+                            Seleccionar Paciente
+                        </h5>
+                        
+                        <div class="patient-selector">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="search_patient_doc" class="form-label">Buscar por Documento</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="search_patient_doc" placeholder="Número de documento">
+                                        <button type="button" class="btn btn-outline-primary" onclick="buscarPaciente('documento')">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="search_patient_name" class="form-label">Buscar por Nombre</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="search_patient_name" placeholder="Nombres o apellidos">
+                                        <button type="button" class="btn btn-outline-primary" onclick="buscarPaciente('nombre')">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="patient_results"></div>
+                            
+                            <input type="hidden" id="selected_patient_id" name="paciente_id" required>
+                        </div>
+                        
+                        <div id="selected_patient_info" style="display: none;"></div>
+                    </div>
+                    
+                    <!-- Información del Estudio -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="fas fa-flask"></i>
+                            Información del Estudio
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="area_estudio_id" class="form-label">Área de Estudio <span class="text-danger">*</span></label>
+                                <select class="form-select" id="area_estudio_id" name="area_estudio_id" required>
+                                    <option value="">Seleccionar área...</option>
+                                    {% for area in areas_estudio %}
+                                    <option value="{{ area.id }}">{{ area.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tipo_estudio_id" class="form-label">Tipo de Estudio <span class="text-danger">*</span></label>
+                                <select class="form-select" id="tipo_estudio_id" name="tipo_estudio_id" required>
+                                    <option value="">Seleccionar tipo...</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="fecha_programada" class="form-label">Fecha Programada</label>
+                                <input type="datetime-local" class="form-control" id="fecha_programada" name="fecha_programada">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="prioridad" class="form-label">Prioridad</label>
+                                <select class="form-select" id="prioridad" name="prioridad">
+                                    <option value="normal">Normal</option>
+                                    <option value="alta">Alta</option>
+                                    <option value="urgente">Urgente</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="3" placeholder="Observaciones adicionales sobre el estudio..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="indicaciones_previas" class="form-label">Indicaciones Previas</label>
+                            <textarea class="form-control" id="indicaciones_previas" name="indicaciones_previas" rows="2" placeholder="Indicaciones que debe seguir el paciente antes del estudio..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <button type="submit" form="newStudyForm" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Crear Estudio
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Gestionar Áreas -->
+<div class="modal fade" id="areasModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-cogs me-2"></i>Gestionar Áreas de Estudio
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Contenido para gestionar áreas -->
+                <div class="mb-4">
+                    <h6>Crear Nueva Área</h6>
+                    <form id="newAreaForm" method="POST" action="{{ url_for('nueva_area_estudio') }}">
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <input type="text" class="form-control" name="nombre" placeholder="Nombre del área" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-plus me-2"></i>Crear
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <textarea class="form-control" name="descripcion" rows="2" placeholder="Descripción del área"></textarea>
+                        </div>
+                    </form>
+                </div>
+                
+                <div>
+                    <h6>Áreas Existentes</h6>
+                    <div class="list-group">
+                        {% for area in areas_estudio %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ area.nombre }}</strong>
+                                {% if area.descripcion %}
+                                <br><small class="text-muted">{{ area.descripcion }}</small>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <button class="btn btn-outline-warning btn-sm me-2" onclick="editarArea({{ area.id }})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm" onclick="eliminarArea({{ area.id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filtros dinámicos
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.dataset.filter;
+            filterStudies(filter);
+        });
+    });
+    
+    function filterStudies(filter) {
+        const cards = document.querySelectorAll('.study-card');
+        const today = new Date().toISOString().split('T')[0];
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        
+        cards.forEach(card => {
+            let show = true;
+            const status = card.dataset.status;
+            const date = card.dataset.date;
+            
+            switch(filter) {
+                case 'pendiente':
+                case 'en-proceso':
+                case 'completado':
+                    show = status === filter.replace('-', '_');
+                    break;
+                case 'hoy':
+                    show = date === today;
+                    break;
+                case 'semana':
+                    show = date >= weekAgo;
+                    break;
+                case 'todos':
+                default:
+                    show = true;
+            }
+            
+            card.style.display = show ? 'block' : 'none';
+        });
+    }
+    
+    // Buscar paciente
+    function buscarPaciente(tipo) {
+        const query = tipo === 'documento' ? 
+            document.getElementById('search_patient_doc').value :
+            document.getElementById('search_patient_name').value;
+            
+        if (!query.trim()) {
+            alert('Por favor ingrese un término de búsqueda');
+            return;
+        }
+        
+        // Aquí iría la lógica AJAX para buscar pacientes
+        // Por ahora, simulamos una respuesta
+        const resultsDiv = document.getElementById('patient_results');
+        resultsDiv.innerHTML = `
+            <div class="alert alert-info">
+                <i class="fas fa-search me-2"></i>
+                Buscando pacientes...
+            </div>
+        `;
+        
+        // Simular búsqueda
+        setTimeout(() => {
+            resultsDiv.innerHTML = `
+                <div class="list-group">
+                    <button type="button" class="list-group-item list-group-item-action" onclick="seleccionarPaciente(1, 'Juan Pérez', '12345678')">
+                        <strong>Juan Pérez</strong><br>
+                        <small>CC: 12345678 | Teléfono: 300-123-4567</small>
+                    </button>
+                </div>
+            `;
+        }, 1000);
+    }
+    
+    function seleccionarPaciente(id, nombre, documento) {
+        document.getElementById('selected_patient_id').value = id;
+        document.getElementById('selected_patient_info').innerHTML = `
+            <div class="selected-patient">
+                <h6><i class="fas fa-user-check me-2"></i>Paciente Seleccionado</h6>
+                <p class="mb-0"><strong>${nombre}</strong> - Documento: ${documento}</p>
+            </div>
+        `;
+        document.getElementById('selected_patient_info').style.display = 'block';
+        document.getElementById('patient_results').innerHTML = '';
+    }
+    
+    // Cargar tipos de estudio según área
+    document.getElementById('area_estudio_id').addEventListener('change', function() {
+        const areaId = this.value;
+        const tipoSelect = document.getElementById('tipo_estudio_id');
+        
+        if (!areaId) {
+            tipoSelect.innerHTML = '<option value="">Seleccionar tipo...</option>';
+            return;
+        }
+        
+        // Aquí iría la lógica AJAX para cargar tipos de estudio
+        // Por ahora, simulamos algunos tipos
+        const tipos = {
+            '1': [
+                {id: 1, nombre: 'Hemograma Completo'},
+                {id: 2, nombre: 'Química Sanguínea'},
+                {id: 3, nombre: 'Perfil Lipídico'}
+            ],
+            '2': [
+                {id: 4, nombre: 'Radiografía de Tórax'},
+                {id: 5, nombre: 'Ecografía Abdominal'},
+                {id: 6, nombre: 'Tomografía'}
+            ]
+        };
+        
+        const tiposArea = tipos[areaId] || [];
+        tipoSelect.innerHTML = '<option value="">Seleccionar tipo...</option>';
+        
+        tiposArea.forEach(tipo => {
+            tipoSelect.innerHTML += `<option value="${tipo.id}">${tipo.nombre}</option>`;
+        });
+    });
+    
+    function cambiarEstado(estudioId, nuevoEstado) {
+        if (confirm(`¿Está seguro de cambiar el estado del estudio?`)) {
+            // Aquí iría la lógica AJAX para cambiar el estado
+            fetch(`/estudios/${estudioId}/estado`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({estado: nuevoEstado})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error al cambiar el estado');
+                }
+            });
+        }
+    }
+    
+    function editarArea(areaId) {
+        // Lógica para editar área
+        console.log('Editar área:', areaId);
+    }
+    
+    function eliminarArea(areaId) {
+        if (confirm('¿Está seguro de eliminar esta área?')) {
+            // Lógica para eliminar área
+            console.log('Eliminar área:', areaId);
+        }
+    }
+</script>
+{% endblock %}

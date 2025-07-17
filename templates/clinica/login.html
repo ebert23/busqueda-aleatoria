@@ -1,0 +1,273 @@
+{% extends "clinica/base.html" %}
+
+{% block title %}Iniciar Sesión - Sistema Clínica{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .login-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        max-width: 900px;
+        width: 100%;
+    }
+    
+    .login-left {
+        background: linear-gradient(135deg, var(--primary-color), #1e3a5f);
+        color: white;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .login-right {
+        padding: 60px 40px;
+    }
+    
+    .login-logo {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        color: white;
+    }
+    
+    .login-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .login-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 30px;
+    }
+    
+    .feature-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        font-size: 1rem;
+    }
+    
+    .feature-item i {
+        margin-right: 15px;
+        font-size: 1.2rem;
+        color: var(--accent-color);
+    }
+    
+    .form-title {
+        color: var(--primary-color);
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    
+    .form-control {
+        padding: 15px 20px;
+        font-size: 1rem;
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.25);
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, var(--primary-color), #1e3a5f);
+        border: none;
+        border-radius: 10px;
+        padding: 15px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(44, 90, 160, 0.3);
+    }
+    
+    .input-group-text {
+        background: var(--primary-color);
+        color: white;
+        border: 2px solid var(--primary-color);
+        border-radius: 10px 0 0 10px;
+    }
+    
+    .input-group .form-control {
+        border-left: none;
+        border-radius: 0 10px 10px 0;
+    }
+    
+    @media (max-width: 768px) {
+        .login-left {
+            display: none;
+        }
+        
+        .login-right {
+            padding: 40px 30px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block login_content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="row g-0">
+            <!-- Left Panel -->
+            <div class="col-md-6 login-left">
+                <div>
+                    <i class="fas fa-hospital-alt login-logo"></i>
+                    <h1 class="login-title">Sistema de Gestión Clínica</h1>
+                    <p class="login-subtitle">Plataforma integral para la gestión de laboratorios y clínicas</p>
+                    
+                    <div class="features mt-4">
+                        <div class="feature-item">
+                            <i class="fas fa-users"></i>
+                            <span>Gestión completa de pacientes</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-flask"></i>
+                            <span>Estudios clínicos avanzados</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-file-medical"></i>
+                            <span>Informes y reportes detallados</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-history"></i>
+                            <span>Historial médico completo</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Seguridad y confidencialidad</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel - Login Form -->
+            <div class="col-md-6 login-right">
+                <h2 class="form-title">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Iniciar Sesión
+                </h2>
+                
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user me-2"></i>Usuario
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input type="text" class="form-control" id="username" name="username" 
+                                   placeholder="Ingrese su usuario" required autocomplete="username">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-2"></i>Contraseña
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   placeholder="Ingrese su contraseña" required autocomplete="current-password">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="remember" name="remember">
+                            <label class="form-check-label" for="remember">
+                                Recordar sesión
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-login">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Iniciar Sesión
+                    </button>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        ¿Problemas para acceder? Contacte al administrador
+                    </small>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        <strong>Usuario por defecto:</strong> admin | <strong>Contraseña:</strong> admin123
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-focus en el campo de usuario
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('username').focus();
+    });
+    
+    // Animación de entrada
+    document.querySelector('.login-card').style.opacity = '0';
+    document.querySelector('.login-card').style.transform = 'translateY(30px)';
+    
+    setTimeout(function() {
+        document.querySelector('.login-card').style.transition = 'all 0.6s ease';
+        document.querySelector('.login-card').style.opacity = '1';
+        document.querySelector('.login-card').style.transform = 'translateY(0)';
+    }, 100);
+</script>
+{% endblock %}

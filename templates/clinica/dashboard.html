@@ -1,0 +1,404 @@
+{% extends "clinica/base.html" %}
+
+{% block title %}Dashboard - Sistema Clínica{% endblock %}
+
+{% block page_name %}dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, var(--primary-color), #1e3a5f);
+        color: white;
+        padding: 30px 0;
+        margin-bottom: 30px;
+        border-radius: 15px;
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--primary-color);
+        height: 100%;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .stats-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+    }
+    
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-bottom: 5px;
+    }
+    
+    .stats-label {
+        color: #6c757d;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    
+    .quick-actions {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+    
+    .action-btn {
+        background: linear-gradient(135deg, var(--primary-color), #1e3a5f);
+        border: none;
+        border-radius: 10px;
+        padding: 15px 20px;
+        color: white;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        margin: 5px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(44, 90, 160, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .action-btn i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+    
+    .recent-activity {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-size: 1.2rem;
+        color: white;
+    }
+    
+    .activity-icon.patient {
+        background: var(--success-color);
+    }
+    
+    .activity-icon.study {
+        background: var(--info-color);
+    }
+    
+    .activity-icon.report {
+        background: var(--warning-color);
+    }
+    
+    .activity-content {
+        flex: 1;
+    }
+    
+    .activity-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    
+    .activity-time {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .welcome-message {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .section-title {
+        color: var(--primary-color);
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-title i {
+        margin-right: 10px;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Welcome Header -->
+    <div class="dashboard-header text-center">
+        <h1 class="mb-3">
+            <i class="fas fa-hospital-alt me-3"></i>
+            Bienvenido al Sistema de Gestión Clínica
+        </h1>
+        <p class="lead mb-0">Panel de control principal - Gestione pacientes, estudios y reportes de manera eficiente</p>
+    </div>
+    
+    <!-- Welcome Message -->
+    <div class="welcome-message">
+        <h4><i class="fas fa-user-md me-2"></i>¡Hola, {{ current_user.username }}!</h4>
+        <p class="mb-0">Hoy es {{ fecha_actual }}. Tienes acceso completo al sistema.</p>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card text-center">
+                <i class="fas fa-users stats-icon"></i>
+                <div class="stats-number">{{ stats.total_pacientes or 0 }}</div>
+                <div class="stats-label">Pacientes Registrados</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card text-center">
+                <i class="fas fa-flask stats-icon"></i>
+                <div class="stats-number">{{ stats.total_estudios or 0 }}</div>
+                <div class="stats-label">Estudios Realizados</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card text-center">
+                <i class="fas fa-file-medical stats-icon"></i>
+                <div class="stats-number">{{ stats.reportes_mes or 0 }}</div>
+                <div class="stats-label">Reportes Este Mes</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card text-center">
+                <i class="fas fa-chart-line stats-icon"></i>
+                <div class="stats-number">{{ stats.areas_estudio or 0 }}</div>
+                <div class="stats-label">Áreas de Estudio</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h3 class="section-title">
+            <i class="fas fa-bolt"></i>
+            Acciones Rápidas
+        </h3>
+        <div class="row">
+            <div class="col-md-6">
+                <a href="{{ url_for('nuevo_paciente') }}" class="action-btn">
+                    <i class="fas fa-user-plus"></i>
+                    Registrar Nuevo Paciente
+                </a>
+                <a href="{{ url_for('pacientes') }}" class="action-btn">
+                    <i class="fas fa-search"></i>
+                    Buscar Paciente
+                </a>
+                <a href="{{ url_for('estudios') }}" class="action-btn">
+                    <i class="fas fa-plus-circle"></i>
+                    Crear Estudio Clínico
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a href="{{ url_for('reportes') }}" class="action-btn">
+                    <i class="fas fa-file-pdf"></i>
+                    Generar Reporte
+                </a>
+                <a href="{{ url_for('areas_estudio') }}" class="action-btn">
+                    <i class="fas fa-cogs"></i>
+                    Gestionar Áreas
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="action-btn">
+                    <i class="fas fa-sliders-h"></i>
+                    Configuración
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Recent Activity -->
+        <div class="col-lg-8">
+            <div class="recent-activity">
+                <h3 class="section-title">
+                    <i class="fas fa-clock"></i>
+                    Actividad Reciente
+                </h3>
+                
+                {% if recent_activities %}
+                    {% for activity in recent_activities %}
+                    <div class="activity-item">
+                        <div class="activity-icon {{ activity.type }}">
+                            <i class="fas fa-{{ activity.icon }}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">{{ activity.title }}</div>
+                            <div class="activity-time">{{ activity.time }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-info-circle text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-3">No hay actividad reciente para mostrar</p>
+                        <p class="text-muted">Comience registrando pacientes o creando estudios clínicos</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="col-lg-4">
+            <div class="chart-container">
+                <h3 class="section-title">
+                    <i class="fas fa-chart-pie"></i>
+                    Resumen Semanal
+                </h3>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Pacientes Nuevos</span>
+                        <span class="badge bg-primary">{{ stats.pacientes_semana or 0 }}</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar" style="width: {{ (stats.pacientes_semana or 0) * 10 }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Estudios Completados</span>
+                        <span class="badge bg-success">{{ stats.estudios_completados or 0 }}</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: {{ (stats.estudios_completados or 0) * 8 }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Reportes Generados</span>
+                        <span class="badge bg-warning">{{ stats.reportes_semana or 0 }}</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-warning" style="width: {{ (stats.reportes_semana or 0) * 15 }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('reportes') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Ver Estadísticas Completas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Status -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <h5 class="alert-heading">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Estado del Sistema
+                </h5>
+                <p class="mb-2">
+                    <strong>Versión:</strong> 1.0.0 | 
+                    <strong>Base de Datos:</strong> <span class="text-success">Conectada</span> | 
+                    <strong>Último Backup:</strong> {{ last_backup or 'No disponible' }}
+                </p>
+                <hr>
+                <p class="mb-0">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    Sistema funcionando correctamente. Todos los servicios están operativos.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animaciones de entrada para las tarjetas
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.stats-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+        
+        // Actualizar hora cada minuto
+        setInterval(function() {
+            // Aquí se puede agregar lógica para actualizar datos en tiempo real
+        }, 60000);
+    });
+    
+    // Función para mostrar notificaciones
+    function showNotification(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        toast.style.top = '20px';
+        toast.style.right = '20px';
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 5000);
+    }
+</script>
+{% endblock %}

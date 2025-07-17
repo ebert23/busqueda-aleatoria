@@ -1,0 +1,518 @@
+{% extends "clinica/base.html" %}
+
+{% block title %}Gestión de Pacientes - Sistema Clínica{% endblock %}
+
+{% block page_name %}pacientes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .patient-form {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        background: #f8f9fa;
+    }
+    
+    .section-title {
+        color: var(--primary-color);
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 10px;
+    }
+    
+    .section-title i {
+        margin-right: 10px;
+        font-size: 1.5rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), #1e3a5f);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(44, 90, 160, 0.3);
+    }
+    
+    .btn-secondary {
+        border-radius: 8px;
+        padding: 12px 30px;
+        font-weight: 600;
+    }
+    
+    .required-field {
+        color: #dc3545;
+    }
+    
+    .patient-search {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+    
+    .search-results {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    
+    .patient-card {
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .patient-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 5px 15px rgba(44, 90, 160, 0.1);
+    }
+    
+    .patient-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .patient-details h5 {
+        color: var(--primary-color);
+        margin-bottom: 5px;
+    }
+    
+    .patient-meta {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .patient-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-sm {
+        padding: 8px 15px;
+        font-size: 0.875rem;
+        border-radius: 6px;
+    }
+    
+    .tab-content {
+        padding: 20px 0;
+    }
+    
+    .nav-tabs .nav-link {
+        border-radius: 10px 10px 0 0;
+        border: none;
+        background: #f8f9fa;
+        color: #6c757d;
+        font-weight: 600;
+        margin-right: 5px;
+    }
+    
+    .nav-tabs .nav-link.active {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .input-group-text {
+        background: var(--primary-color);
+        color: white;
+        border: 2px solid var(--primary-color);
+    }
+    
+    .input-group .form-control {
+        border-left: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2">
+            <i class="fas fa-users me-3"></i>
+            Gestión de Pacientes
+        </h1>
+        <div>
+            <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#searchModal">
+                <i class="fas fa-search me-2"></i>Buscar Paciente
+            </button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newPatientModal">
+                <i class="fas fa-user-plus me-2"></i>Nuevo Paciente
+            </button>
+        </div>
+    </div>
+    
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs" id="patientTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="list-tab" data-bs-toggle="tab" data-bs-target="#list" type="button" role="tab">
+                <i class="fas fa-list me-2"></i>Lista de Pacientes
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">
+                <i class="fas fa-user-plus me-2"></i>Registrar Paciente
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="search-tab" data-bs-toggle="tab" data-bs-target="#search" type="button" role="tab">
+                <i class="fas fa-search me-2"></i>Buscar Pacientes
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="patientTabContent">
+        <!-- Lista de Pacientes -->
+        <div class="tab-pane fade show active" id="list" role="tabpanel">
+            <div class="search-results">
+                <h3 class="section-title">
+                    <i class="fas fa-users"></i>
+                    Pacientes Registrados
+                </h3>
+                
+                {% if pacientes %}
+                    {% for paciente in pacientes %}
+                    <div class="patient-card">
+                        <div class="patient-info">
+                            <div class="patient-details">
+                                <h5>{{ paciente.nombres }} {{ paciente.apellidos }}</h5>
+                                <div class="patient-meta">
+                                    <span><i class="fas fa-id-card me-1"></i>{{ paciente.documento_identidad }}</span>
+                                    <span class="ms-3"><i class="fas fa-birthday-cake me-1"></i>{{ paciente.fecha_nacimiento.strftime('%d/%m/%Y') if paciente.fecha_nacimiento else 'No especificada' }}</span>
+                                    <span class="ms-3"><i class="fas fa-phone me-1"></i>{{ paciente.telefono or 'No especificado' }}</span>
+                                </div>
+                            </div>
+                            <div class="patient-actions">
+                                <a href="{{ url_for('historial_paciente', id=paciente.id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>Ver
+                                </a>
+                                <a href="{{ url_for('editar_paciente', id=paciente.id) }}" class="btn btn-outline-warning btn-sm">
+                                    <i class="fas fa-edit me-1"></i>Editar
+                                </a>
+                                <a href="{{ url_for('historial_paciente', id=paciente.id) }}" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-history me-1"></i>Historial
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-user-friends text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="text-muted mt-3">No hay pacientes registrados</h4>
+                        <p class="text-muted">Comience registrando su primer paciente</p>
+                        <button class="btn btn-primary" data-bs-toggle="tab" data-bs-target="#register">
+                            <i class="fas fa-user-plus me-2"></i>Registrar Primer Paciente
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Registrar Paciente -->
+        <div class="tab-pane fade" id="register" role="tabpanel">
+            <div class="patient-form">
+                <h3 class="section-title">
+                    <i class="fas fa-user-plus"></i>
+                    Registrar Nuevo Paciente
+                </h3>
+                
+                <form method="POST" action="{{ url_for('nuevo_paciente') }}">
+                    <!-- Información Personal -->
+                    <div class="form-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-user"></i>
+                            Información Personal
+                        </h4>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nombres" class="form-label">
+                                    Nombres <span class="required-field">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="nombres" name="nombres" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="apellidos" class="form-label">
+                                    Apellidos <span class="required-field">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="apellidos" name="apellidos" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="tipo_documento" class="form-label">
+                                    Tipo de Documento <span class="required-field">*</span>
+                                </label>
+                                <select class="form-select" id="tipo_documento" name="tipo_documento" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="CC">Cédula de Ciudadanía</option>
+                                    <option value="TI">Tarjeta de Identidad</option>
+                                    <option value="CE">Cédula de Extranjería</option>
+                                    <option value="PP">Pasaporte</option>
+                                    <option value="RC">Registro Civil</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="cedula" class="form-label">
+                                    Número de Documento <span class="required-field">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="cedula" name="cedula" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="fecha_nacimiento" class="form-label">
+                                    Fecha de Nacimiento <span class="required-field">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="genero" class="form-label">
+                                    Género <span class="required-field">*</span>
+                                </label>
+                                <select class="form-select" id="genero" name="genero" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                    <option value="O">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="estado_civil" class="form-label">Estado Civil</label>
+                                <select class="form-select" id="estado_civil" name="estado_civil">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Soltero">Soltero(a)</option>
+                                    <option value="Casado">Casado(a)</option>
+                                    <option value="Divorciado">Divorciado(a)</option>
+                                    <option value="Viudo">Viudo(a)</option>
+                                    <option value="Union_libre">Unión Libre</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="ocupacion" class="form-label">Ocupación</label>
+                                <input type="text" class="form-control" id="ocupacion" name="ocupacion">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información de Contacto -->
+                    <div class="form-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-address-book"></i>
+                            Información de Contacto
+                        </h4>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="telefono" class="form-label">Teléfono Principal</label>
+                                <input type="tel" class="form-control" id="telefono" name="telefono">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="telefono_emergencia" class="form-label">Teléfono de Emergencia</label>
+                                <input type="tel" class="form-control" id="telefono_emergencia" name="telefono_emergencia">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="email" name="email">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="direccion" class="form-label">Dirección</label>
+                            <textarea class="form-control" id="direccion" name="direccion" rows="2"></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ciudad" class="form-label">Ciudad</label>
+                                <input type="text" class="form-control" id="ciudad" name="ciudad">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="departamento" class="form-label">Departamento</label>
+                                <input type="text" class="form-control" id="departamento" name="departamento">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información Médica -->
+                    <div class="form-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-heartbeat"></i>
+                            Información Médica
+                        </h4>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="eps" class="form-label">EPS/Aseguradora</label>
+                                <input type="text" class="form-control" id="eps" name="eps">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tipo_sangre" class="form-label">Tipo de Sangre</label>
+                                <select class="form-select" id="tipo_sangre" name="tipo_sangre">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="alergias" class="form-label">Alergias Conocidas</label>
+                            <textarea class="form-control" id="alergias" name="alergias" rows="2" placeholder="Describa cualquier alergia conocida..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="medicamentos" class="form-label">Medicamentos Actuales</label>
+                            <textarea class="form-control" id="medicamentos" name="medicamentos" rows="2" placeholder="Liste los medicamentos que toma actualmente..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="antecedentes" class="form-label">Antecedentes Médicos</label>
+                            <textarea class="form-control" id="antecedentes" name="antecedentes" rows="3" placeholder="Describa antecedentes médicos relevantes..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones de Acción -->
+                    <div class="d-flex justify-content-end gap-3">
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                            <i class="fas fa-undo me-2"></i>Limpiar Formulario
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Registrar Paciente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Buscar Pacientes -->
+        <div class="tab-pane fade" id="search" role="tabpanel">
+            <div class="patient-search">
+                <h3 class="section-title">
+                    <i class="fas fa-search"></i>
+                    Buscar Pacientes
+                </h3>
+                
+                <form method="GET" action="{{ url_for('pacientes') }}">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="search_documento" class="form-label">Número de Documento</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                <input type="text" class="form-control" id="search_documento" name="documento" placeholder="Ingrese número de documento">
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="search_nombres" class="form-label">Nombres</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="search_nombres" name="nombres" placeholder="Ingrese nombres">
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="search_apellidos" class="form-label">Apellidos</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="search_apellidos" name="apellidos" placeholder="Ingrese apellidos">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary me-3">
+                            <i class="fas fa-search me-2"></i>Buscar
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="clearSearch()">
+                            <i class="fas fa-times me-2"></i>Limpiar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function resetForm() {
+        document.querySelector('#register form').reset();
+    }
+    
+    function clearSearch() {
+        document.querySelector('#search form').reset();
+    }
+    
+    // Validación de edad
+    document.getElementById('fecha_nacimiento').addEventListener('change', function() {
+        const birthDate = new Date(this.value);
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear();
+        
+        if (age < 0 || age > 120) {
+            alert('Por favor, ingrese una fecha de nacimiento válida.');
+            this.value = '';
+        }
+    });
+    
+    // Validación de documento
+    document.getElementById('documento_identidad').addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+    
+    // Validación de teléfono
+    document.getElementById('telefono').addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9+\-\s]/g, '');
+    });
+    
+    document.getElementById('telefono_emergencia').addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9+\-\s]/g, '');
+    });
+</script>
+{% endblock %}

@@ -227,6 +227,19 @@ def eliminar_servicio(id):
         flash(f'Error al eliminar el servicio: {str(e)}', 'danger')
     return redirect(url_for('index'))
 
+def safe_float_conversion(value):
+    """Convierte un valor a float de manera segura, manejando espacios y valores vacíos"""
+    if pd.isna(value):
+        return None
+    if isinstance(value, str):
+        value = value.strip()  # Eliminar espacios al inicio y final
+        if value == '' or value.isspace():  # Si es cadena vacía o solo espacios
+            return None
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return None
+
 @app.route('/importar', methods=['GET', 'POST'])
 @login_required
 def importar_excel():
@@ -267,23 +280,23 @@ def importar_excel():
                         cliente=str(row['CLIENTE']) if pd.notna(row.get('CLIENTE')) else None,
                         marca=str(row['MARCA']) if pd.notna(row.get('MARCA')) else None,
                         modelo=str(row['MODELO']) if pd.notna(row.get('MODELO')) else None,
-                        kilometraje=float(row['KM']) if pd.notna(row.get('KM')) else None,
+                        kilometraje=safe_float_conversion(row.get('KM')),
                         filtro_aceite=str(row['FILTRO DE ACEITE']) if pd.notna(row.get('FILTRO DE ACEITE')) else None,
-                        precio_filtro_aceite=float(row['PRECIO FILTRO ACEITE']) if pd.notna(row.get('PRECIO FILTRO ACEITE')) else None,
-                        filtro_aire=str(row['FILTRO FILTRO DE AIRE']) if pd.notna(row.get('FILTRO FILTRO DE AIRE')) else None,
-                        precio_filtro_aire=float(row['PRECIO AIRE']) if pd.notna(row.get('PRECIO AIRE')) else None,
-                        filtro_petroleo=str(row['FILTRO DE PETROLEO ']) if pd.notna(row.get('FILTRO DE PETROLEO ')) else None,
-                        precio_filtro_petroleo=float(row['PRECIO FILTRO PETROLEO']) if pd.notna(row.get('PRECIO FILTRO PETROLEO')) else None,
-                        aceite_motor=str(row['    ACEITE MOTOR']) if pd.notna(row.get('    ACEITE MOTOR')) else None,
-                        precio_aceite_motor=float(row['PRECIO ACEITE MOTOR']) if pd.notna(row.get('PRECIO ACEITE MOTOR')) else None,
+                        precio_filtro_aceite=safe_float_conversion(row.get('PRECIO FILTRO ACEITE')),
+                        filtro_aire=str(row['FILTRO DE AIRE']) if pd.notna(row.get('FILTRO DE AIRE')) else None,
+                        precio_filtro_aire=safe_float_conversion(row.get('PRECIO FILTRO AIRE')),
+                        filtro_petroleo=str(row['FILTRO DE PETROLEO']) if pd.notna(row.get('FILTRO DE PETROLEO')) else None,
+                        precio_filtro_petroleo=safe_float_conversion(row.get('PRECIO FILTRO PETROLEO')),
+                        aceite_motor=str(row['ACEITE DE MOTOR']) if pd.notna(row.get('ACEITE DE MOTOR')) else None,
+                        precio_aceite_motor=safe_float_conversion(row.get('PRECIO ACEITE MOTOR')),
                         otros_1=str(row['OTROS 1']) if pd.notna(row.get('OTROS 1')) else None,
-                        precio_otros_1=float(row['PRECIO OTROS 1']) if pd.notna(row.get('PRECIO OTROS 1')) else None,
+                        precio_otros_1=safe_float_conversion(row.get('PRECIO OTROS 1')),
                         otros_2=str(row['OTROS 2']) if pd.notna(row.get('OTROS 2')) else None,
-                        precio_otros_2=float(row['PRECIO OTROS 2']) if pd.notna(row.get('PRECIO OTROS 2')) else None,
+                        precio_otros_2=safe_float_conversion(row.get('PRECIO OTROS 2')),
                         otros_3=str(row['OTROS 3']) if pd.notna(row.get('OTROS 3')) else None,
-                        precio_otros_3=float(row['PRECIO OTROS 3']) if pd.notna(row.get('PRECIO OTROS 3')) else None,
+                        precio_otros_3=safe_float_conversion(row.get('PRECIO OTROS 3')),
                         otros_4=str(row['OTROS 4']) if pd.notna(row.get('OTROS 4')) else None,
-                        precio_otros_4=float(row['PRECIO OTROS 4']) if pd.notna(row.get('PRECIO OTROS 4')) else None,
+                        precio_otros_4=safe_float_conversion(row.get('PRECIO OTROS 4')),
                         usuario_id=current_user.id
                     )
 
